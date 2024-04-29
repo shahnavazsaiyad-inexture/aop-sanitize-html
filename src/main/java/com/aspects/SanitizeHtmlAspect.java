@@ -36,34 +36,35 @@ public class SanitizeHtmlAspect {
                     arg.getClass().equals(param.getType())
             ).findFirst();
 
-            requestObject.ifPresent(request -> {
-                Field[] fields = request.getClass().getDeclaredFields();
-                for (Field field : fields) {
-                    Annotation[] annotations = field.getAnnotations();
-                    for (Annotation annotation : annotations) {
-                        if (annotation.annotationType().getSimpleName().equals("SanitizeHtml")) {
-                            SanitizeHtml sanitizeHtmlAnnotation = (SanitizeHtml) annotation;
-                            SanitizeType sanitizeType = sanitizeHtmlAnnotation.cleanType();
+            requestObject.ifPresent(this::sanitizeHtml);
+        }
+    }
 
-                            field.setAccessible(true);
-                            Object value = null;
-                            try {
-                                value = field.get(request);
-                                if (value instanceof String) {
-                                    String stringValue = (String) value;
-                                    String sanitizedValue = Jsoup.clean(stringValue, getSafeList(sanitizeType));
-                                    field.set(request, sanitizedValue);
+    private void sanitizeHtml(Object request) {
+        Field[] fields = request.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            Annotation[] annotations = field.getAnnotations();
+            for (Annotation annotation : annotations) {
+                if (annotation.annotationType().getSimpleName().equals("SanitizeHtml")) {
+                    SanitizeHtml sanitizeHtmlAnnotation = (SanitizeHtml) annotation;
+                    SanitizeType sanitizeType = sanitizeHtmlAnnotation.cleanType();
 
-                                }
-                            } catch (IllegalAccessException e) {
-                                System.out.println(e.getMessage());
-                            }
+                    field.setAccessible(true);
+                    Object value = null;
+                    try {
+                        value = field.get(request);
+                        if (value instanceof String) {
+                            String stringValue = (String) value;
+                            String sanitizedValue = Jsoup.clean(stringValue, getSafeList(sanitizeType));
+                            field.set(request, sanitizedValue);
+
                         }
+                    } catch (IllegalAccessException e) {
+                        System.out.println(e.getMessage());
                     }
                 }
-            });
+            }
         }
-
     }
 
     private Safelist getSafeList(SanitizeType cleanType) {
