@@ -22,7 +22,7 @@ import java.util.Optional;
 @Component
 public class SanitizeHtmlAspect {
 
-    @Before("execution(* *(.., @org.springframework.web.bind.annotation.RequestBody (*), ..))")
+    @Before("execution(* *(.., @com.annotations.SanitizeHtml (*), ..))")
     public void beforeRequest(JoinPoint joinPoint) {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();

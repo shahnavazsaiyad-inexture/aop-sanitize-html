@@ -1,5 +1,7 @@
 package com.controller;
 
+import com.annotations.SanitizeHtml;
+import com.dto.SanitizeType;
 import com.dto.TestDto;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +18,7 @@ public class HelloController {
     }
 
     @PostMapping(value = "/test", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public TestDto test(@RequestBody TestDto testDto) {
+    public TestDto test(@SanitizeHtml @RequestBody TestDto testDto) {
         return testDto;
     }
 }

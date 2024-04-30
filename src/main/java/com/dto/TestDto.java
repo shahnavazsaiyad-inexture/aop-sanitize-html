@@ -7,7 +7,6 @@ import java.io.Serializable;
 public class TestDto implements Serializable {
 
 
-
     private String property1;
 
     @SanitizeHtml(cleanType = SanitizeType.SIMPLE_TEXT)
