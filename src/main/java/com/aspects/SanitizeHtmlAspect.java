@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 
 @Aspect
@@ -57,6 +58,11 @@ public class SanitizeHtmlAspect {
                             String sanitizedValue = Jsoup.clean(stringValue, getSafeList(sanitizeType));
                             field.set(request, sanitizedValue);
 
+                        }else if(value instanceof Collection){
+                            Collection collection = (Collection) value;
+                            collection.forEach(this::sanitizeHtml);
+                        }else{
+                            sanitizeHtml(value);
                         }
                     } catch (IllegalAccessException e) {
                         System.out.println(e.getMessage());
