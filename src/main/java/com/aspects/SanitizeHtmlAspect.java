@@ -40,34 +40,33 @@ public class SanitizeHtmlAspect {
         }
     }
 
-    private void sanitizeHtml(Object request) {
+    public  void sanitizeHtml(Object request) {
         Field[] fields = request.getClass().getDeclaredFields();
         for (Field field : fields) {
-            Annotation[] annotations = field.getAnnotations();
-            for (Annotation annotation : annotations) {
-                if (annotation.annotationType().getSimpleName().equals("SanitizeHtml")) {
-                    SanitizeHtml sanitizeHtmlAnnotation = (SanitizeHtml) annotation;
-                    SanitizeType sanitizeType = sanitizeHtmlAnnotation.cleanType();
+            field.setAccessible(true);
+            try {
+                Object value = field.get(request);
+                if (value != null) {
+                    if (field.getType().equals(String.class) && field.isAnnotationPresent(SanitizeHtml.class)) {
 
-                    field.setAccessible(true);
-                    Object value = null;
-                    try {
-                        value = field.get(request);
-                        if (value instanceof String) {
-                            String stringValue = (String) value;
-                            String sanitizedValue = Jsoup.clean(stringValue, getSafeList(sanitizeType));
-                            field.set(request, sanitizedValue);
-
-                        }else if(value instanceof Collection){
-                            Collection collection = (Collection) value;
-                            collection.forEach(this::sanitizeHtml);
-                        }else{
-                            sanitizeHtml(value);
+                        SanitizeHtml sanitizeHtmlAnnotation = field.getAnnotation(SanitizeHtml.class);
+                        SanitizeType sanitizeType = sanitizeHtmlAnnotation.cleanType();
+                        String stringValue = (String) value;
+                        String sanitizedValue = Jsoup.clean(stringValue, getSafeList(sanitizeType));
+                        field.set(request, sanitizedValue);
+                    }
+                    else if (value instanceof Collection) {
+                        Collection<?> collection = (Collection<?>) value;
+                        for (Object item : collection) {
+                            sanitizeHtml(item);
                         }
-                    } catch (IllegalAccessException e) {
-                        System.out.println(e.getMessage());
+                    }
+                    else if (!field.getType().isPrimitive() && !field.getType().getPackage().getName().startsWith("java.lang")) {
+                        sanitizeHtml(value);
                     }
                 }
+            } catch (IllegalAccessException e) {
+                System.out.println(e.getMessage());
             }
         }
     }

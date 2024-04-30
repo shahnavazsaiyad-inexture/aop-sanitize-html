@@ -15,13 +15,10 @@ public class TestDto implements Serializable {
     private String property2;
 
 
-    @SanitizeHtml
     private NestedDto nestedDto;
 
-    @SanitizeHtml
     private List<NestedDto> nestedDtoList;
 
-    @SanitizeHtml
     private Set<NestedDto> nestedDtoSet;
 
     public Set<NestedDto> getNestedDtoSet() {
