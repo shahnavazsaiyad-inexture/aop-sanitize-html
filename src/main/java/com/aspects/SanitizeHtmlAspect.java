@@ -9,7 +9,6 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -28,10 +27,10 @@ public class SanitizeHtmlAspect {
         Method method = methodSignature.getMethod();
 
         Parameter[] parameters = method.getParameters();
-        Optional<Parameter> requestBody = Arrays.stream(parameters).filter(parameter -> parameter.isAnnotationPresent(RequestBody.class)).findAny();
+        Optional<Parameter> requestParameter = Arrays.stream(parameters).filter(parameter -> parameter.isAnnotationPresent(SanitizeHtml.class)).findAny();
 
-        if(requestBody.isPresent()){
-            Parameter param = requestBody.get();
+        if(requestParameter.isPresent()){
+            Parameter param = requestParameter.get();
             Optional<Object> requestObject = Arrays.stream(joinPoint.getArgs()).filter(arg ->
                     arg.getClass().equals(param.getType())
             ).findFirst();
